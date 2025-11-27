@@ -35,24 +35,8 @@ const Attendance: React.FC = () => {
         if (selectedClassId) {
             const cls = data.classes.find(c => c.id === selectedClassId);
             if (cls) {
-                const initialState: Record<string, 'PRESENT' | 'ABSENT' | 'JUSTIFIED'> = {};
-                cls.studentIds.forEach(id => {
-                    initialState[id] = 'PRESENT'; // Default to present? Or undefined? Requirement says "Mark All Present" button exists, so maybe start undefined or default present? 
-                    // Let's start undefined to force action? Or default Present for speed?
-                    // "Botón rápido 'Registrar' si falta la asistencia del día."
-                    // "Botón para 'Marcar Todos Presentes' con un solo clic." -> Implies they are not all present by default.
-                    // So let's start with empty/undefined, but for UI we might show a "Pending" state or just default to Present visually but require confirmation?
-                    // Let's default to 'PRESENT' for better UX as most are present usually, but let's follow the "Mark All" requirement which implies a manual action.
-                    // Actually, let's initialize as undefined (or a specific 'PENDING' state if we had one, but our type is strict).
-                    // Let's use 'PRESENT' as default but maybe visual cue?
-                    // Re-reading: "Botón para 'Marcar Todos Presentes' con un solo clic."
-                    // This suggests they start as unassigned. But my type is strict.
-                    // Let's initialize all to 'PRESENT' for now as it's the most common case, making the "Mark All" button a "Reset to All Present" button effectively.
-                    // OR, let's wait.
-                    // Let's initialize as PRESENT.
-                    initialState[id] = 'PRESENT';
-                });
-                setAttendanceState(initialState);
+                // Initialize with empty state (unmarked)
+                setAttendanceState({});
             }
         }
     }, [selectedClassId, data.classes]);
@@ -189,11 +173,9 @@ const Attendance: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {students.map(student => (
                     <div key={student.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                        <img
-                            src={student.avatar}
-                            alt={student.firstName}
-                            className="w-14 h-14 rounded-full bg-slate-100 object-cover"
-                        />
+                        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-xl font-bold text-slate-500">
+                            {student.firstName[0]}{student.lastName[0]}
+                        </div>
 
                         <div className="flex-1 min-w-0">
                             <h3 className="font-bold text-slate-900 truncate">{student.firstName} {student.lastName}</h3>

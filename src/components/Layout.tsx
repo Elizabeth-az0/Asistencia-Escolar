@@ -60,11 +60,9 @@ const Layout: React.FC = () => {
 
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <img
-                                src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}`}
-                                alt="Profile"
-                                className="w-10 h-10 rounded-full bg-slate-100"
-                            />
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">
+                                {user?.name[0]}
+                            </div>
                             <div className="overflow-hidden">
                                 <p className="font-medium text-slate-900 truncate">{user?.name}</p>
                                 <p className="text-xs text-slate-500 capitalize">{user?.role.toLowerCase()}</p>

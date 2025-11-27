@@ -179,7 +179,9 @@ const Admin: React.FC = () => {
                         {data.users.map(u => (
                             <div key={u.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <img src={u.avatar} alt="" className="w-12 h-12 rounded-full bg-slate-100" />
+                                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-lg">
+                                        {u.name[0]}
+                                    </div>
                                     <div>
                                         <p className="font-bold text-slate-900">{u.name}</p>
                                         <div className="flex items-center gap-2 text-sm text-slate-500">

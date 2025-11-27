@@ -175,7 +175,9 @@ const Reports: React.FC = () => {
                                         <tr key={student.id} className="group hover:bg-slate-50 transition-colors">
                                             <td className="py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <img src={student.avatar} alt="" className="w-10 h-10 rounded-full bg-slate-100" />
+                                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">
+                                                        {student.firstName[0]}{student.lastName[0]}
+                                                    </div>
                                                     <span className="font-medium text-slate-900">{student.firstName} {student.lastName}</span>
                                                 </div>
                                             </td>

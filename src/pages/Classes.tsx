@@ -25,6 +25,18 @@ const Classes: React.FC = () => {
     const handleAddStudent = (e: React.FormEvent) => {
         e.preventDefault();
         if (selectedClassId && newStudentName && newStudentLastName) {
+            // Check for duplicates
+            const isDuplicate = selectedClass?.studentIds.some(id => {
+                const s = data.students[id];
+                return s && s.firstName.toLowerCase() === newStudentName.toLowerCase() &&
+                    s.lastName.toLowerCase() === newStudentLastName.toLowerCase();
+            });
+
+            if (isDuplicate) {
+                alert('Ya existe un estudiante con este nombre en la clase.');
+                return;
+            }
+
             addStudentToClass(selectedClassId, {
                 firstName: newStudentName,
                 lastName: newStudentLastName,
@@ -138,7 +150,9 @@ const Classes: React.FC = () => {
                                 students.map(student => (
                                     <div key={student.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
                                         <div className="flex items-center gap-4">
-                                            <img src={student.avatar} alt="" className="w-10 h-10 rounded-full bg-slate-100" />
+                                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">
+                                                {student.firstName[0]}{student.lastName[0]}
+                                            </div>
                                             <div>
                                                 <p className="font-medium text-slate-900">{student.firstName} {student.lastName}</p>
                                                 <p className="text-xs text-slate-500">ID: {student.id}</p>
