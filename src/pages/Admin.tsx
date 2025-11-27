@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserPlus, Trash2, Shield, School, User } from 'lucide-react';
 
 const Admin: React.FC = () => {
-    const { data, addClass, saveData } = useData();
+    const { data, addClass, saveData, resetData } = useData();
     const { user } = useAuth();
 
     const [activeTab, setActiveTab] = useState<'users' | 'classes'>('users');
@@ -76,7 +76,19 @@ const Admin: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
+                <button
+                    onClick={() => {
+                        if (window.confirm('¿Estás seguro de que quieres restablecer todos los datos? Se perderán los cambios.')) {
+                            resetData();
+                        }
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                >
+                    Restablecer Datos
+                </button>
+            </div>
 
             {/* Tabs */}
             <div className="flex gap-4 border-b border-slate-200">

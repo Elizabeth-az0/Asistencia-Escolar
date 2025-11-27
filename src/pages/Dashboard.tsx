@@ -144,60 +144,76 @@ const Dashboard: React.FC = () => {
 
             {/* Classes List */}
             <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Mis Aulas</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {myClasses.map(cls => {
-                        const isTaken = data.attendance.some(r => r.classId === cls.id && r.date === todayISO);
-                        const stats = getClassStats(cls.id);
-                        const attendancePct = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+                <h2 className="text-xl font-bold text-slate-900 mb-4">Todas las Aulas</h2>
+                {myClasses.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {myClasses.map(cls => {
+                            const isTaken = data.attendance.some(r => r.classId === cls.id && r.date === todayISO);
+                            const stats = getClassStats(cls.id);
+                            const attendancePct = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
 
-                        return (
-                            <div key={cls.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h3 className="font-bold text-lg text-slate-900">{cls.name}</h3>
-                                        <p className="text-slate-500 text-sm">{cls.room}</p>
-                                    </div>
-                                    {isTaken ? (
-                                        <div className="text-green-500">
-                                            <CheckCircle2 className="w-6 h-6" />
+                            return (
+                                <div key={cls.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 className="font-bold text-lg text-slate-900">{cls.name}</h3>
+                                            <p className="text-slate-500 text-sm">{cls.room}</p>
                                         </div>
-                                    ) : (
-                                        <div className="text-slate-300">
-                                            <Circle className="w-6 h-6" />
+                                        {isTaken ? (
+                                            <div className="text-green-500">
+                                                <CheckCircle2 className="w-6 h-6" />
+                                            </div>
+                                        ) : (
+                                            <div className="text-slate-300">
+                                                <Circle className="w-6 h-6" />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <div className="flex justify-between text-sm mb-2">
+                                            <span className="text-slate-500">Asistencia Histórica</span>
+                                            <span className="font-bold text-slate-900">{attendancePct}%</span>
                                         </div>
-                                    )}
-                                </div>
-
-                                <div className="mb-6">
-                                    <div className="flex justify-between text-sm mb-2">
-                                        <span className="text-slate-500">Asistencia Histórica</span>
-                                        <span className="font-bold text-slate-900">{attendancePct}%</span>
+                                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={cn("h-full rounded-full", attendancePct >= 90 ? "bg-green-500" : attendancePct >= 75 ? "bg-amber-500" : "bg-red-500")}
+                                                style={{ width: `${attendancePct}%` }}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className={cn("h-full rounded-full", attendancePct >= 90 ? "bg-green-500" : attendancePct >= 75 ? "bg-amber-500" : "bg-red-500")}
-                                            style={{ width: `${attendancePct}%` }}
-                                        />
-                                    </div>
-                                </div>
 
-                                <Link
-                                    to={isTaken ? `/reports` : `/attendance?classId=${cls.id}`}
-                                    className={cn(
-                                        "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-colors",
-                                        isTaken
-                                            ? "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                                            : "bg-primary-600 text-white hover:bg-primary-700"
-                                    )}
-                                >
-                                    {isTaken ? 'Ver Reporte' : 'Registrar Asistencia'}
-                                    {!isTaken && <ArrowRight className="w-4 h-4" />}
-                                </Link>
-                            </div>
-                        );
-                    })}
-                </div>
+                                    <Link
+                                        to={isTaken ? `/reports` : `/attendance?classId=${cls.id}`}
+                                        className={cn(
+                                            "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-colors",
+                                            isTaken
+                                                ? "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                                                : "bg-primary-600 text-white hover:bg-primary-700"
+                                        )}
+                                    >
+                                        {isTaken ? 'Ver Reporte' : 'Registrar Asistencia'}
+                                        {!isTaken && <ArrowRight className="w-4 h-4" />}
+                                    </Link>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-2xl p-12 text-center border border-slate-100">
+                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <Calendar className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">No tienes aulas asignadas</h3>
+                        <p className="text-slate-500 mb-6">Crea usuarios y asigna aulas en el panel de administración.</p>
+                        <Link
+                            to="/admin"
+                            className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors"
+                        >
+                            Ir a Administración
+                        </Link>
+                    </div>
+                )}
             </div>
         </div>
     );

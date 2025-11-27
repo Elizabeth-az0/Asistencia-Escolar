@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Trash2, Search, UserPlus, Users } from 'lucide-react';
+import { Plus, Trash2, Search, UserPlus, Users, AlertTriangle } from 'lucide-react';
 
 const Classes: React.FC = () => {
     const { data, addStudentToClass, removeStudentFromClass } = useData();
@@ -37,8 +37,14 @@ const Classes: React.FC = () => {
 
     if (myClasses.length === 0) {
         return (
-            <div className="text-center py-12">
-                <p className="text-slate-500">No tienes clases asignadas.</p>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                    <AlertTriangle className="w-8 h-8 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">No tienes aulas asignadas</h3>
+                <p className="text-slate-500 max-w-md">
+                    Crea aulas en el panel de administración para comenzar a gestionar tus clases.
+                </p>
             </div>
         );
     }
