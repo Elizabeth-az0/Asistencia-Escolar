@@ -48,14 +48,14 @@ const Layout: React.FC = () => {
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
             )}
 
             {/* Sidebar */}
             <aside className={cn(
-                "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out lg:transform-none flex flex-col",
+                "fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col",
                 isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
             )}>
                 <div className="p-6 border-b border-slate-100">
@@ -120,7 +120,7 @@ const Layout: React.FC = () => {
             {/* Main Content */}
             <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
                 {/* Mobile Header */}
-                <header className="lg:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-30">
+                <header className="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-30">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary-50 text-primary-600 rounded-lg">
                             <School className="w-6 h-6" />
@@ -135,7 +135,7 @@ const Layout: React.FC = () => {
                     </button>
                 </header>
 
-                <div className="flex-1 overflow-auto p-4 lg:p-8">
+                <div className="flex-1 overflow-auto p-4 md:p-8">
                     <div className="max-w-7xl mx-auto">
                         <Outlet />
                     </div>
