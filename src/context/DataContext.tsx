@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { AppData, ClassGroup, Student, AttendanceRecord } from '../types';
+import type { AppData, ClassGroup, Student, AttendanceRecord, User } from '../types';
 
 interface DataContextType {
     data: AppData;
@@ -10,6 +10,8 @@ interface DataContextType {
     saveData: (newData: AppData) => void;
     resetData: () => void;
     getClassStats: (classId: string) => { present: number; absent: number; justified: number; total: number };
+    updateUser: (id: string, updatedUser: Partial<User>) => void;
+    updateClass: (id: string, updatedClass: Partial<ClassGroup>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -119,6 +121,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         saveData({ ...data, classes: updatedClasses });
     };
 
+    const updateUser = (id: string, updatedUser: Partial<User>) => {
+        const updatedUsers = data.users.map(u =>
+            u.id === id ? { ...u, ...updatedUser } : u
+        );
+        saveData({ ...data, users: updatedUsers });
+    };
+
+    const updateClass = (id: string, updatedClass: Partial<ClassGroup>) => {
+        const updatedClasses = data.classes.map(c =>
+            c.id === id ? { ...c, ...updatedClass } : c
+        );
+        saveData({ ...data, classes: updatedClasses });
+    };
+
     const saveAttendance = (record: AttendanceRecord) => {
         // 1. Add record
         const newAttendance = [...data.attendance, record];
@@ -175,7 +191,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <DataContext.Provider value={{ data, addClass, addStudentToClass, removeStudentFromClass, saveAttendance, saveData, resetData, getClassStats }}>
+        <DataContext.Provider value={{ data, addClass, addStudentToClass, removeStudentFromClass, saveAttendance, saveData, resetData, getClassStats, updateUser, updateClass }}>
             {children}
         </DataContext.Provider>
     );

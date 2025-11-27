@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, Trash2, Shield, School, User } from 'lucide-react';
+import { UserPlus, Trash2, Shield, School, User, Pencil, X } from 'lucide-react';
 
 const Admin: React.FC = () => {
-    const { data, addClass, saveData, resetData } = useData();
+    const { data, addClass, saveData, resetData, updateUser, updateClass } = useData();
     const { user } = useAuth();
 
     const [activeTab, setActiveTab] = useState<'users' | 'classes'>('users');
 
     // User Form State
     const [newUser, setNewUser] = useState({ name: '', username: '', password: '', role: 'PROFESSOR' as 'PROFESSOR' | 'DIRECTOR' });
+    const [editingUserId, setEditingUserId] = useState<string | null>(null);
 
     // Class Form State
     const [newClass, setNewClass] = useState({ name: '', room: '', professorId: '' });
+    const [editingClassId, setEditingClassId] = useState<string | null>(null);
 
     if (user?.role !== 'DIRECTOR') {
         return <div className="p-8 text-center text-red-600">Acceso Denegado</div>;
@@ -21,35 +23,81 @@ const Admin: React.FC = () => {
 
     const handleAddUser = (e: React.FormEvent) => {
         e.preventDefault();
-        const id = Math.random().toString(36).substr(2, 9);
-        const userToAdd = {
-            ...newUser,
-            id,
-            avatar: `https://ui-avatars.com/api/?name=${newUser.name}&background=random`
-        };
 
-        // We need to update data.users
-        saveData({
-            ...data,
-            users: [...data.users, userToAdd]
-        });
+        if (editingUserId) {
+            updateUser(editingUserId, newUser);
+            setEditingUserId(null);
+            alert('Usuario actualizado con éxito');
+        } else {
+            const id = Math.random().toString(36).substr(2, 9);
+            const userToAdd = {
+                ...newUser,
+                id,
+                avatar: `https://ui-avatars.com/api/?name=${newUser.name}&background=random`
+            };
+
+            saveData({
+                ...data,
+                users: [...data.users, userToAdd]
+            });
+            alert('Usuario creado con éxito');
+        }
 
         setNewUser({ name: '', username: '', password: '', role: 'PROFESSOR' });
-        alert('Usuario creado con éxito');
+    };
+
+    const handleEditUser = (userToEdit: any) => {
+        setEditingUserId(userToEdit.id);
+        setNewUser({
+            name: userToEdit.name,
+            username: userToEdit.username,
+            password: userToEdit.password,
+            role: userToEdit.role
+        });
+    };
+
+    const cancelEditUser = () => {
+        setEditingUserId(null);
+        setNewUser({ name: '', username: '', password: '', role: 'PROFESSOR' });
     };
 
     const handleAddClass = (e: React.FormEvent) => {
         e.preventDefault();
-        if (newClass.professorId) {
-            addClass({
+
+        if (editingClassId) {
+            updateClass(editingClassId, {
                 name: newClass.name,
                 room: newClass.room,
-                professorId: newClass.professorId,
-                studentIds: []
+                professorId: newClass.professorId
             });
-            setNewClass({ name: '', room: '', professorId: '' });
-            alert('Clase creada con éxito');
+            setEditingClassId(null);
+            alert('Clase actualizada con éxito');
+        } else {
+            if (newClass.professorId) {
+                addClass({
+                    name: newClass.name,
+                    room: newClass.room,
+                    professorId: newClass.professorId,
+                    studentIds: []
+                });
+                alert('Clase creada con éxito');
+            }
         }
+        setNewClass({ name: '', room: '', professorId: '' });
+    };
+
+    const handleEditClass = (classToEdit: any) => {
+        setEditingClassId(classToEdit.id);
+        setNewClass({
+            name: classToEdit.name,
+            room: classToEdit.room,
+            professorId: classToEdit.professorId
+        });
+    };
+
+    const cancelEditClass = () => {
+        setEditingClassId(null);
+        setNewClass({ name: '', room: '', professorId: '' });
     };
 
     const handleDeleteUser = (userId: string) => {
@@ -112,14 +160,21 @@ const Admin: React.FC = () => {
 
             {activeTab === 'users' ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Create User */}
+                    {/* Create/Edit User */}
                     <div className="lg:col-span-1">
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 sticky top-8">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-primary-50 text-primary-600 rounded-lg">
-                                    <UserPlus className="w-5 h-5" />
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg">
+                                        <UserPlus className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="font-bold text-slate-900">{editingUserId ? 'Editar Usuario' : 'Crear Usuario'}</h3>
                                 </div>
-                                <h3 className="font-bold text-slate-900">Crear Usuario</h3>
+                                {editingUserId && (
+                                    <button onClick={cancelEditUser} className="text-slate-400 hover:text-slate-600">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
 
                             <form onSubmit={handleAddUser} className="space-y-4">
@@ -168,7 +223,7 @@ const Admin: React.FC = () => {
                                     type="submit"
                                     className="w-full bg-slate-900 text-white py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                                 >
-                                    Crear Usuario
+                                    {editingUserId ? 'Actualizar Usuario' : 'Crear Usuario'}
                                 </button>
                             </form>
                         </div>
@@ -193,28 +248,43 @@ const Admin: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                {u.id !== user.id && (
+                                <div className="flex gap-2">
                                     <button
-                                        onClick={() => handleDeleteUser(u.id)}
-                                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                        onClick={() => handleEditUser(u)}
+                                        className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                                     >
-                                        <Trash2 className="w-5 h-5" />
+                                        <Pencil className="w-5 h-5" />
                                     </button>
-                                )}
+                                    {u.id !== user.id && (
+                                        <button
+                                            onClick={() => handleDeleteUser(u.id)}
+                                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Create Class */}
+                    {/* Create/Edit Class */}
                     <div className="lg:col-span-1">
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 sticky top-8">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-primary-50 text-primary-600 rounded-lg">
-                                    <School className="w-5 h-5" />
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg">
+                                        <School className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="font-bold text-slate-900">{editingClassId ? 'Editar Aula' : 'Crear Aula'}</h3>
                                 </div>
-                                <h3 className="font-bold text-slate-900">Crear Aula</h3>
+                                {editingClassId && (
+                                    <button onClick={cancelEditClass} className="text-slate-400 hover:text-slate-600">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
 
                             <form onSubmit={handleAddClass} className="space-y-4">
@@ -258,7 +328,7 @@ const Admin: React.FC = () => {
                                     type="submit"
                                     className="w-full bg-slate-900 text-white py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                                 >
-                                    Crear Aula
+                                    {editingClassId ? 'Actualizar Aula' : 'Crear Aula'}
                                 </button>
                             </form>
                         </div>
@@ -280,12 +350,20 @@ const Admin: React.FC = () => {
                                             <span>{c.studentIds.length} Estudiantes</span>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleDeleteClass(c.id)}
-                                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEditClass(c)}
+                                            className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                        >
+                                            <Pencil className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteClass(c.id)}
+                                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })}
